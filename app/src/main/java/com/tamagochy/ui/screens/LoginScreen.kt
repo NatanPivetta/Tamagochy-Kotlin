@@ -1,50 +1,16 @@
-package com.tamagochy
+package com.tamagochy.ui.screens
 
-import android.content.Context
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
-import androidx.fragment.app.Fragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.tamagochy.auth.FirebaseAuthHelper
-import com.tamagochy.ui.theme.TamagochyKotlinTheme
-
-class LoginFragment : Fragment() {
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setContent {
-                TamagochyKotlinTheme {
-                    LoginScreen(
-                        googleSignInClient = FirebaseAuthHelper.getGoogleSignInClient(requireContext()),
-                        onLoginSuccess = { requireActivity().recreate() }
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun LoginScreen(
