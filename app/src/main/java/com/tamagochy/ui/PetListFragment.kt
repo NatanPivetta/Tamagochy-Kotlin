@@ -1,10 +1,11 @@
-package com.tamagochy
+package com.tamagochy.ui
 
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,8 +31,13 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.Navigation
+import com.tamagochy.R
+import com.tamagochy.auth.FirebaseAuthHelper
 import com.tamagochy.model.Pet
 
 class PetListFragment : Fragment() {
@@ -46,7 +52,8 @@ class PetListFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 TamagochyKotlinTheme {
-                    PetListScreen(pets)
+                    PetListScreen(pets, )
+
                 }
             }
         }
@@ -68,7 +75,10 @@ fun PetListScreen(pets: List<Pet>) {
                 onDeleteClick = {}
             )
         }
+
     }
+
+
 }
 
 @Composable
@@ -149,6 +159,8 @@ fun PetCard(
         }
     }
 }
+
+
 
 
 data class Pet(val name: String, val code: String, val lastMeal: String)
