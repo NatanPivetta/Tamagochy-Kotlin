@@ -39,7 +39,7 @@ class MainViewModel(
 
     // Fetches the pets for the logged-in user
     private fun fetchPets() {
-        petRepository.fetchPetsForCurrentUser(
+        petRepository.getPetsForCurrentUser(
             onSuccess = { fetchedPets ->
                 _pets.value = fetchedPets
             },

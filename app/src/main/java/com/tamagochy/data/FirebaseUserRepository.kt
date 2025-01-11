@@ -47,4 +47,8 @@ class FirebaseUserRepository : UserRepository {
             }
             .addOnFailureListener { onFailure(it.localizedMessage ?: "Failed to check user") }
     }
+
+    override fun logout() {
+        TODO("Not yet implemented")
+    }
 }

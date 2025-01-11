@@ -61,4 +61,6 @@ class FirebasePetRepository(private val userRepository: UserRepository): PetRepo
     override fun feedPet(pet: Pet, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
         petsRef.child(pet.alphanumericCode).child("lastMeal").setValue(System.currentTimeMillis())
     }
+
+
 }
