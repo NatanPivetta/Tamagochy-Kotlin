@@ -18,6 +18,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.tamagochy.R
 import com.tamagochy.model.Pet
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 @Composable
@@ -25,6 +28,10 @@ fun PetCard(pet: Pet,
             onFeedClick: () -> Unit,
             onEditClick: () -> Unit,
             onDeleteClick: () -> Unit) {
+
+    val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    val date = Date(pet.lastMeal)
+    val petLastMealFormatted =    dateFormatter.format(date)
 
 
     Card(
@@ -61,8 +68,8 @@ fun PetCard(pet: Pet,
                     verticalArrangement = Arrangement.Top
                 ) {
                     Text(text = pet.name, color = Color(0xFF2196F3))
-                    Text(text = pet.code)
-                    Text(text = "Última refeição: ${pet.lastMeal}", color = Color(0xFF64B5F6))
+                    Text(text = pet.alphanumericCode)
+                    Text(text = "Última refeição: $petLastMealFormatted", color = Color(0xFF64B5F6))
                 }
             }
 

@@ -33,8 +33,29 @@ fun PetListScreen(
     val isLoading = remember { mutableStateOf(true) }
     val errorMessage = remember { mutableStateOf<String?>(null) }
 
+    Log.d("PetListScreen", "pets: $pets")
+
     LaunchedEffect(Unit) {
-        isLoading.value = false
+        FirebaseDatabaseHelper.checkAndCreateUser(
+            onFailure = { error ->
+
+                isLoading.value = false
+            },
+            onComplete = { userExists ->
+                if (userExists) {
+                    FirebaseDatabaseHelper.getPetsForCurrentUser(
+                        onSuccess = { fetchedPets ->
+                            pets.value = fetchedPets
+                            isLoading.value = false
+                        },
+                        onFailure = { error ->
+                            isLoading.value = false
+                        }
+                    )
+                }
+            }
+        )
+
     }
 
     Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
@@ -64,4 +85,9 @@ fun PetListScreen(
             }
         }
     }
+}
+
+fun onFeedClick(pet: Pet){
+    Log.d("PetListScreen", "Feeding pet: ${pet.name}")
+    FirebaseDatabaseHelper.feedPet(pet)
 }

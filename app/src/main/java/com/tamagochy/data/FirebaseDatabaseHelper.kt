@@ -14,7 +14,7 @@ object FirebaseDatabaseHelper {
 
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
     private val usersRef: DatabaseReference = database.reference.child("users")
-    private val petsRef: DatabaseReference = database.reference.child("pets")
+    private var petsRef: DatabaseReference = database.reference.child("pets")
 
 
     // Fetch pets for the current logged-in user
@@ -99,6 +99,11 @@ object FirebaseDatabaseHelper {
                     onFailure(exception.localizedMessage ?: "Failed to fetch pet data")
                 }
         }
+    }
+
+    fun feedPet(pet: Pet) {
+        val petsRef = FirebaseDatabase.getInstance().reference.child("pets")
+        petsRef.child(pet.alphanumericCode).child("lastMeal").setValue(System.currentTimeMillis())
     }
 }
 

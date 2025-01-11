@@ -20,11 +20,15 @@ import com.tamagochy.model.Pet
 import com.tamagochy.navigation.Screen
 import com.tamagochy.ui.screens.LoginScreen
 import com.tamagochy.ui.screens.PetListScreen
+import com.tamagochy.ui.screens.onFeedClick
 import com.tamagochy.ui.theme.TamagochyKotlinTheme
 
 
 
 class MainActivity : ComponentActivity() {
+
+    private val currentUser = FirebaseAuth.getInstance().currentUser
+    private val pets = mutableListOf<Pet>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +39,7 @@ class MainActivity : ComponentActivity() {
 
                 // Check user authentication
                 val isUserLoggedIn = remember {
-                    mutableStateOf(FirebaseAuthHelper.getCurrentUser() != null)
+                    mutableStateOf(currentUser != null)
                 }
 
                 NavHost(
@@ -47,7 +51,7 @@ class MainActivity : ComponentActivity() {
                             googleSignInClient = FirebaseAuthHelper.getGoogleSignInClient(this@MainActivity),
                             onLoginSuccess = {
                                 isUserLoggedIn.value = true
-                                FirebaseAuthHelper.getCurrentUser()
+                                currentUser
                                     ?.let { it1 -> Log.d("MainActivity", it1.uid) }
                                 navController.navigate(Screen.Home.route) {
                                     popUpTo(Screen.Login.route) { inclusive = true }
@@ -57,7 +61,6 @@ class MainActivity : ComponentActivity() {
                     }
                     composable(Screen.Home.route) {
                         val pets  = remember { mutableStateOf<List<Pet>>(emptyList()) }
-                        val currentUser = FirebaseAuth.getInstance().currentUser
                         FirebaseDatabaseHelper.checkAndCreateUser(onFailure = {errorMessage ->
                             run {
                                 if (currentUser != null) {
@@ -97,7 +100,7 @@ class MainActivity : ComponentActivity() {
                                 Log.d("MainActivity", "Editing pet: ${pet.name}")
                             },
                             onFeedClick = {pet ->
-                                Log.d("MainActivity", "Feeding pet: ${pet.name}")
+                               onFeedClick(pet)
                             }
                         )
                     }
