@@ -5,7 +5,7 @@ data class Pet(
     val alphanumericCode: String = "",
     val lastMeal: Long = 0,
     val imageUrl: String = "", // Path to image in Firebase Storage
-    val petUid: String = "",
     val tutorID: List<String> = emptyList(),
+    var petUID: String = ""
 )
 

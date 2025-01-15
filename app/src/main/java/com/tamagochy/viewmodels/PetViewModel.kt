@@ -1,28 +1,39 @@
 package com.tamagochy.viewmodels
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.tamagochy.data.PetRepository
 import com.tamagochy.model.Pet
+import kotlinx.coroutines.launch
 
 class PetViewModel(private val repository: PetRepository) : ViewModel() {
 
-    private val _pets = MutableLiveData<List<Pet>>()
-    val pets: LiveData<List<Pet>> get() = _pets
 
-    private val _error = MutableLiveData<String>()
-    val error: LiveData<String> get() = _error
+    val pets = mutableStateOf<List<Pet>>(emptyList())
+    val isLoading = mutableStateOf(true)
+    val errorMessage = mutableStateOf<String?>(null)
+
+    init {
+        loadPets()
+    }
 
     fun loadPets() {
-        repository.getPetsForCurrentUser(
-            onSuccess = { petList ->
-                _pets.postValue(petList)
-            },
-            onFailure = { errorMessage ->
-                _error.postValue(errorMessage)
-            }
-        )
+        viewModelScope.launch {
+            isLoading.value = false
+            repository.getPetsForCurrentUser(
+                onSuccess = { petList ->
+                    pets.value = petList
+                    isLoading.value = false
+                },
+                onFailure = { error ->
+                    errorMessage.value = error
+                    isLoading.value = false
+                }
+            )
+        }
     }
 
     fun feedPet(pet: Pet) {
@@ -31,8 +42,8 @@ class PetViewModel(private val repository: PetRepository) : ViewModel() {
             onSuccess = {
                 loadPets() // Refresh pets after feeding
             },
-            onFailure = { errorMessage ->
-                _error.postValue(errorMessage)
+            onFailure = { error ->
+                errorMessage.value = error
             }
         )
     }

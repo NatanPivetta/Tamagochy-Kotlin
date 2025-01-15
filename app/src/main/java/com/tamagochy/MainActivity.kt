@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -16,22 +17,29 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.tamagochy.auth.FirebaseAuthHelper
 import com.tamagochy.data.FirebaseDatabaseHelper
+import com.tamagochy.data.PetRepository
 import com.tamagochy.model.Pet
 import com.tamagochy.navigation.Screen
 import com.tamagochy.ui.screens.LoginScreen
 import com.tamagochy.ui.screens.PetListScreen
-import com.tamagochy.ui.screens.onFeedClick
 import com.tamagochy.ui.theme.TamagochyKotlinTheme
-
+import com.tamagochy.viewmodels.MainViewModel
+import com.tamagochy.viewmodels.PetViewModel
+import com.tamagochy.viewmodels.PetViewModelFactory
 
 
 class MainActivity : ComponentActivity() {
 
+    lateinit var viewModel: MainViewModel
+    lateinit var petViewModel: PetViewModel
     private val currentUser = FirebaseAuth.getInstance().currentUser
     private val pets = mutableListOf<Pet>()
+    private val firebaseDatabaseHelper = FirebaseDatabaseHelper
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        petViewModel = ViewModelProvider(this, PetViewModelFactory(PetRepository(firebaseDatabaseHelper))).get(PetViewModel::class.java)
         setContent {
             TamagochyKotlinTheme {
                 val navController = rememberNavController()
@@ -59,49 +67,32 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable(Screen.Home.route) {
-                        val pets  = remember { mutableStateOf<List<Pet>>(emptyList()) }
-                        FirebaseDatabaseHelper.checkAndCreateUser(onFailure = {errorMessage ->
-                            run {
-                                if (currentUser != null) {
-                                    Log.d("MainActivity", "Error checking user existence: ${currentUser.uid}")
-                                }
-                                Log.d("MainActivity", "Error creating user: $errorMessage")
-                            }
-                        },
-                            onComplete = {userExists ->
-                                run {
-                                    if (userExists) {
-                                        FirebaseDatabaseHelper.getPetsForCurrentUser(onFailure = { errorMessage ->
-                                            Log.d(
-                                                "MainActivity",
-                                                "Error getting pets: $errorMessage"
-                                            )
-                                        }, onSuccess = { fetchedPets ->
-                                            pets.value = fetchedPets
-                                            Log.d("MainActivity", "Fetched pets: $fetchedPets")
-                                        })
-                                    }
-                                }
-                            })
+                        val pets = petViewModel.pets.value
+                        val isLoading = petViewModel.isLoading.value
+                        val errorMessage = null
+
                         PetListScreen(
-                            pets.value, // Replace with actual pets data
-                            onLogout = {
-                                FirebaseAuthHelper.signOut(this@MainActivity)
-                                isUserLoggedIn.value = false
-                                navController.navigate(Screen.Login.route) {
-                                    popUpTo(Screen.Home.route) { inclusive = true }
+                                pets = pets,
+                                isLoading = isLoading,
+                                errorMessage = errorMessage,// Replace with actual pets data
+                                onLogout = {
+                                    FirebaseAuthHelper.signOut(this@MainActivity)
+                                    isUserLoggedIn.value = false
+                                    navController.navigate(Screen.Login.route) {
+                                        popUpTo(Screen.Home.route) { inclusive = true }
+                                    }
+                                },
+                                onDeleteClick = {pet ->
+                                    Log.d("MainActivity", "Deleting pet: ${pet.name}")
+                                },
+                                onEditClick = {pet ->
+                                    Log.d("MainActivity", "Editing pet: ${pet.name}")
+                                },
+                                onFeedClick = {pet ->
+                                    petViewModel.feedPet(pet)
+                                    petViewModel.loadPets()
                                 }
-                            },
-                            onDeleteClick = {pet ->
-                                Log.d("MainActivity", "Deleting pet: ${pet.name}")
-                            },
-                            onEditClick = {pet ->
-                                Log.d("MainActivity", "Editing pet: ${pet.name}")
-                            },
-                            onFeedClick = {pet ->
-                               onFeedClick(pet)
-                            }
-                        )
+                            )
                     }
                 }
             }

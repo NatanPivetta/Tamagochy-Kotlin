@@ -2,6 +2,7 @@ package com.tamagochy.viewmodels
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.tamagochy.data.PetRepository
 import com.tamagochy.data.UserRepository
@@ -15,8 +16,8 @@ class MainViewModel(
     private val _isUserLoggedIn = mutableStateOf(false)
     val isUserLoggedIn: State<Boolean> = _isUserLoggedIn
 
-    private val _pets = mutableStateOf<List<Pet>>(emptyList())
-    val pets: State<List<Pet>> = _pets
+    private val _pets = MutableLiveData<List<Pet>>(emptyList())
+    val pets: MutableLiveData<List<Pet>> = _pets
 
     private val _errorMessage = mutableStateOf("")
     val errorMessage: State<String> = _errorMessage
@@ -41,7 +42,7 @@ class MainViewModel(
     private fun fetchPets() {
         petRepository.getPetsForCurrentUser(
             onSuccess = { fetchedPets ->
-                _pets.value = fetchedPets
+                _pets.postValue(fetchedPets)
             },
             onFailure = { error ->
                 _errorMessage.value = error

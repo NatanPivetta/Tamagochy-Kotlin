@@ -1,14 +1,10 @@
 package com.tamagochy.data
 
 import android.util.Log
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.getValue
-import com.google.firebase.database.ktx.getValue
 import com.tamagochy.model.Pet
 import com.tamagochy.auth.FirebaseAuthHelper
-import com.tamagochy.model.User
 
 object FirebaseDatabaseHelper {
 
@@ -84,10 +80,12 @@ object FirebaseDatabaseHelper {
         val petsRef = FirebaseDatabase.getInstance().reference.child("pets")
         // Fetch pet data for each pet ID
         for (petId in petIds) {
+            Log.d("FirebaseDatabaseHelper", "Fetching pet data for ID: $petId")
             petsRef.child(petId).get()
                 .addOnSuccessListener { snapshot ->
                     val pet = snapshot.getValue(Pet::class.java)
                     if (pet != null) {
+                        pet.petUID = petId
                         petList.add(pet)
                     }
                     // If we have fetched all pets, call onSuccess
@@ -103,7 +101,8 @@ object FirebaseDatabaseHelper {
 
     fun feedPet(pet: Pet) {
         val petsRef = FirebaseDatabase.getInstance().reference.child("pets")
-        petsRef.child(pet.alphanumericCode).child("lastMeal").setValue(System.currentTimeMillis())
+        petsRef.child(pet.petUID).child("lastMeal").setValue(System.currentTimeMillis())
+
     }
 }
 
