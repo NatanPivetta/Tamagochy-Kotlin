@@ -3,7 +3,6 @@ package com.tamagochy.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.tamagochy.data.PetRepository
-import com.tamagochy.data.UserRepository
 
 class PetViewModelFactory (private val repository: PetRepository): ViewModelProvider.Factory {
 
